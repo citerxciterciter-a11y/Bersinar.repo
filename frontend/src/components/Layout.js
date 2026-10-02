@@ -47,7 +47,7 @@ export default function Layout({ children }) {
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-[#F9F8F6] overflow-hidden">
       {/* Navbar */}
-      <header className="flex-shrink-0 h-16 bg-emerald-900 text-white flex items-center px-3 sm:px-5 gap-3 z-30 shadow-lg">
+      <header className="flex-shrink-0 h-16 bg-emerald-900 text-white flex items-center px-3 sm:px-5 gap-3 z-30 border-b border-emerald-800">
         <button data-testid="sidebar-toggle" onClick={() => setOpen(!open)} className="lg:hidden p-2 rounded-lg hover:bg-white/10">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -77,7 +77,7 @@ export default function Layout({ children }) {
           </Select>
 
           <button data-testid="fullscreen-toggle" onClick={toggleFullscreen}
-            className="p-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 transition-transform duration-150 active:scale-95" title="Layar Penuh">
+            className="p-2 rounded-lg bg-emerald-800 hover:bg-emerald-700" title="Layar Penuh">
             {isFull ? <Minimize size={20} /> : <Maximize size={20} />}
           </button>
 
@@ -86,7 +86,7 @@ export default function Layout({ children }) {
             <span className="text-[10px] text-emerald-300 uppercase">{user?.role}</span>
           </div>
           <button data-testid="logout-btn" onClick={doLogout}
-            className="p-2 rounded-lg bg-emerald-800 hover:bg-red-600 transition-transform duration-150 active:scale-95" title="Keluar">
+            className="p-2 rounded-lg bg-emerald-800 hover:bg-red-600" title="Keluar">
             <LogOut size={20} />
           </button>
         </div>
@@ -94,14 +94,14 @@ export default function Layout({ children }) {
 
       <div className="flex-1 flex min-h-0">
         {/* Sidebar */}
-        <aside className={`${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-200
-          fixed lg:static z-20 top-16 bottom-0 left-0 w-60 bg-white border-r border-gray-200 flex flex-col py-4 gap-1 px-3`}>
+        <aside className={`${open ? "flex" : "hidden"} lg:flex
+          fixed lg:static z-20 top-16 bottom-0 left-0 w-60 bg-white border-r border-gray-200 flex-col py-4 gap-1 px-3`}>
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.end} onClick={() => setOpen(false)}
               data-testid={`nav-${n.label.toLowerCase().replace(/[^a-z]/g, "-")}`}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                  isActive ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                  isActive ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
                 }`}>
               <n.icon size={19} />
               {n.label}
@@ -110,7 +110,7 @@ export default function Layout({ children }) {
           {user?.role === "admin" && (
             <NavLink to="/users" onClick={() => setOpen(false)} data-testid="nav-users"
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
                   isActive ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
                 }`}>
               <Users size={19} /> Pengguna

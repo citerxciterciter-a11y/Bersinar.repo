@@ -51,7 +51,7 @@ export default function Products() {
           <p className="text-gray-500 text-sm">{products.length} produk terdaftar</p>
         </div>
         <button data-testid="add-product-btn" onClick={() => setModal("new")}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-transform duration-150 active:scale-95">
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
           <Plus size={20} /> Tambah Produk Baru
         </button>
       </div>
@@ -176,7 +176,7 @@ function ProductForm({ meta, product, catImg, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-[65] flex items-end sm:items-center justify-center bg-black/50 sm:p-4" onClick={onClose} data-testid="product-form-modal">
-      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[92dvh] flex flex-col animate-slide-up shadow-2xl">
+      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[92dvh] flex flex-col animate-slide-up border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <h3 className="font-heading font-bold text-xl">{product ? "Edit Produk" : "Tambah Produk Baru"}</h3>
           <button onClick={onClose} data-testid="product-form-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
@@ -277,7 +277,7 @@ function ProductForm({ meta, product, catImg, onClose, onSaved }) {
         <div className="p-4 border-t border-gray-100 flex-shrink-0 flex gap-2">
           <button onClick={onClose} className="px-5 py-3 rounded-xl border border-gray-200 font-semibold hover:bg-gray-50">Batal</button>
           <button data-testid="pf-save" onClick={save} disabled={saving}
-            className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 transition-transform duration-150 active:scale-95 disabled:opacity-50">
+            className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {saving && <Loader2 className="animate-spin" size={20} />} Simpan Produk
           </button>
         </div>

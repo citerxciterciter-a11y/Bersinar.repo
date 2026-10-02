@@ -25,7 +25,7 @@ export default function Receipt({ txn, customer, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4" data-testid="receipt-modal">
-      <div className="bg-white rounded-2xl w-full max-w-sm max-h-[90dvh] flex flex-col shadow-2xl">
+      <div className="bg-white rounded-2xl w-full max-w-sm max-h-[90dvh] flex flex-col border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <h3 className="font-heading font-bold text-lg">Struk Transaksi</h3>
           <button onClick={onClose} data-testid="receipt-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
@@ -71,11 +71,11 @@ export default function Receipt({ txn, customer, onClose }) {
 
         <div className="p-4 border-t border-gray-100 flex gap-2 flex-shrink-0">
           <button onClick={() => window.print()} data-testid="receipt-print-btn"
-            className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center justify-center gap-2 transition-transform duration-150 active:scale-95">
+            className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center justify-center gap-2">
             <Printer size={18} /> Cetak
           </button>
           <a href={waLink} target="_blank" rel="noreferrer" data-testid="receipt-wa-btn"
-            className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center justify-center gap-2 transition-transform duration-150 active:scale-95">
+            className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center justify-center gap-2">
             <MessageCircle size={18} /> WhatsApp
           </a>
         </div>

@@ -33,7 +33,7 @@ export default function Users() {
           <p className="text-gray-500 text-sm">Kelola akun admin & kasir</p>
         </div>
         <button data-testid="add-user-btn" onClick={() => setModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-transform active:scale-95">
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
           <Plus size={20} /> Tambah Kasir
         </button>
       </div>
@@ -80,7 +80,7 @@ function UserForm({ onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-[65] flex items-end sm:items-center justify-center bg-black/50 sm:p-4" onClick={onClose} data-testid="user-form-modal">
-      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl flex flex-col animate-slide-up shadow-2xl">
+      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl flex flex-col animate-slide-up border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h3 className="font-heading font-bold text-xl">Tambah Pengguna</h3>
           <button onClick={onClose} data-testid="user-form-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
@@ -99,7 +99,7 @@ function UserForm({ onClose, onSaved }) {
         </div>
         <div className="p-4 border-t border-gray-100">
           <button data-testid="uf-save" onClick={save} disabled={saving}
-            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 disabled:opacity-50">
+            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {saving && <Loader2 className="animate-spin" size={20} />} Simpan
           </button>
         </div>

@@ -31,7 +31,7 @@ export default function Customers() {
           <p className="text-gray-500 text-sm">{customers.length} pelanggan terdaftar</p>
         </div>
         <button data-testid="add-customer-btn" onClick={() => setModal("new")}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-transform duration-150 active:scale-95">
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
           <Plus size={20} /> Tambah Pelanggan
         </button>
       </div>
@@ -99,7 +99,7 @@ function CustomerForm({ customer, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-[65] flex items-end sm:items-center justify-center bg-black/50 sm:p-4" onClick={onClose} data-testid="customer-form-modal">
-      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[92dvh] flex flex-col animate-slide-up shadow-2xl">
+      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[92dvh] flex flex-col animate-slide-up border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <h3 className="font-heading font-bold text-xl">{customer ? "Edit Pelanggan" : "Tambah Pelanggan"}</h3>
           <button onClick={onClose} data-testid="customer-form-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
@@ -115,7 +115,7 @@ function CustomerForm({ customer, onClose, onSaved }) {
         </div>
         <div className="p-4 border-t border-gray-100 flex-shrink-0">
           <button data-testid="cf-save" onClick={save} disabled={saving}
-            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 transition-transform duration-150 active:scale-95 disabled:opacity-50">
+            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {saving && <Loader2 className="animate-spin" size={20} />} Simpan
           </button>
         </div>

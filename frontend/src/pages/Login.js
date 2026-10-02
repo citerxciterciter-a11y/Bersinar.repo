@@ -71,7 +71,7 @@ export default function Login() {
             className="w-full mb-6 px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none" />
 
           <button data-testid="login-submit" disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-lg flex items-center justify-center gap-2 transition-transform duration-150 active:scale-95 disabled:opacity-60">
+            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-60">
             {loading && <Loader2 className="animate-spin" size={20} />} Masuk
           </button>
 

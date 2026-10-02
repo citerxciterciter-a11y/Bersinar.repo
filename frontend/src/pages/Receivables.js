@@ -70,7 +70,7 @@ export default function Receivables() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button data-testid={`pay-recv-${c.id}`} onClick={() => setPayModal(c)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-transform active:scale-95">
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold">
                           <HandCoins size={14} /> Pelunasan
                         </button>
                       </td>
@@ -106,7 +106,7 @@ function PaymentForm({ customer, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-[65] flex items-end sm:items-center justify-center bg-black/50 sm:p-4" onClick={onClose} data-testid="payment-form-modal">
-      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl flex flex-col animate-slide-up shadow-2xl">
+      <div onClick={(e) => e.stopPropagation()} className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl flex flex-col animate-slide-up border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h3 className="font-heading font-bold text-xl">Pelunasan Bon</h3>
           <button onClick={onClose} data-testid="payment-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
@@ -133,7 +133,7 @@ function PaymentForm({ customer, onClose, onSaved }) {
         </div>
         <div className="p-4 border-t border-gray-100">
           <button data-testid="pay-save" onClick={save} disabled={saving}
-            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 disabled:opacity-50">
+            className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {saving && <Loader2 className="animate-spin" size={20} />} Catat Pembayaran
           </button>
         </div>

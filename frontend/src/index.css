@@ -11,6 +11,12 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #F9F8F6;
+    overscroll-behavior: none;
+}
+
+html, #root {
+    height: 100%;
+    overscroll-behavior: none;
 }
 
 @layer base {
@@ -62,7 +68,6 @@ body {
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #059669; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -73,8 +78,5 @@ body {
     #receipt-print { position: absolute; left: 0; top: 0; width: 80mm; }
 }
 
-@keyframes slide-up {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-}
-.animate-slide-up { animation: slide-up 0.25s ease-out; }
+/* Zero-animation: instant show/hide (no slide/transition) */
+.animate-slide-up { animation: none; }
