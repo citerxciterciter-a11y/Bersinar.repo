@@ -298,7 +298,7 @@ export default function POS() {
         return;
       }
       if (e.key.length === 1) {
-        buffer += e.key;
+        if (buffer.length < 64) buffer += e.key;
         if (gap < 35) e.preventDefault();  // fast stream => keep scanner chars out of inputs
       }
     };
