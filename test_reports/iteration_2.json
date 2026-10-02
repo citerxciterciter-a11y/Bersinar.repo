@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend-only regression test of BERSINAR POS after the performance/zero-animation refactor (memoized ProductCard/CartItem, 150ms debounced search, lazy render 24/page, localStorage product cache, zero-animation modals/sheets). Verified on desktop 1920x1080 with admin login. All data-testids intact; no console errors; no behavioral regressions.\n\nTested and PASSED: admin login -> POS; 12 seeded products render; cat-Sayur filter instant (3 products); debounced search 'minyak' -> 1 product; non-decimal 'Minyak Goreng 2L' click adds qty 1 and increments on repeat click (cart-total Rp 76.000 after x2); decimal 'Bayam Hijau' click opens numpad-overlay instantly with decimal '.' key present; numpad-key-5 sets display and numpad-confirm button bounding box (y=776, h=60) fits fully inside the 1080-tall viewport (NOT cut off); confirm applies Grosir tier at Rp 10.000/Kg (cart item: 'Bayam Hijau Rp 10.000/Kg Grosir 5 Rp 50.000'); cart-inc/dec on decimal item steps 0.25 (5 -> 5.25 -> 5); cart-qty-<id> reopens numpad with initial=5; cart-remove works; cart-clear implicit after checkout; Cash checkout: checkout-modal shows checkout-grand Rp 114.000, checkout-paid 500.000 -> checkout-change Rp 386.000, pay-Cash + checkout-confirm creates transaction and receipt-modal appears with receipt-print-btn and receipt-wa-btn, success toast 'Transaksi berhasil!'; after checkout, cart cleared (0 items) and background product stock badge refreshed (Minyak Goreng 2L: 43 PCS -> 40 PCS after selling 3, then -> 39 PCS after an additional credit sale of 1); Credit checkout: pay-Credit + checkout-customer select (3 B2B customers listed) + valid small-amount credit sale -> receipt shown successfully.\n\nNot re-verified in this iteration (unchanged from iteration_1 and backend-covered): credit over-limit blocking (iteration_1 confirmed it works; attempt here was blocked earlier by stock-cap on Daging Sapi 12 Kg so could not force a >credit_limit cart); kasir role gating. Backend untouched per request.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Login", "issues": ["Hard-coded demo credentials still shown below the Masuk button ('Admin: ... / bersinar123, Kasir: ... / kasir123'). Should be removed before production."]},
+      {"screen": "POS catalog", "issues": ["Seed still reuses the same 'rice bag' image for most non-vegetable products (Air Mineral, Teh Botol, Gula, Minyak, Beras). Pre-existing from iteration_1."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/iteration_1.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "POS.js is now ~490 LOC and includes CheckoutModal inline — consider extracting CheckoutModal into its own file to keep POS.js focused on catalog/cart.",
+    "localStorage PRODUCTS_CACHE is written on every /products fetch but never invalidated by version; if seed/schema changes, stale cache may hydrate incompatible objects. Consider adding a schema version key or clear-on-logout.",
+    "resolvePrice runs inside CartItem on every render and again inside cartTotal useMemo; acceptable for 12 products but worth memoizing by (product.id, qty) if cart grows."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (23/23 unchanged)", "frontend": "100% of refactor-impacted flows (14/14 assertions)"},
+  "test_credentials": "Admin: citerxciter.citer@gmail.com / bersinar123 ; Kasir: kasir@bersinar.id / kasir123",
+  "seed_data_creation": "Used existing seed (12 products, 3 B2B customers, 3 locations). Two live sales were created during testing (1 Cash Rp 114.000 for Minyak Goreng x3; 1 Credit for Minyak Goreng x1) — stock on Minyak dropped 43 -> 39 PCS. No cleanup; transactional data by design.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "App renders POS at the root path '/' (not '/pos'); use wait_for_selector('[data-testid^=\"product-\"]') after login instead of wait_for_url. Receipt modal (data-testid=receipt-modal) has a close X button at the top-right (first svg-button inside the modal) — selector 'xpath=//*[@data-testid=\"receipt-modal\"]//button[.//svg][1]' or page.click('[data-testid=\"receipt-modal\"] button:has(svg)') works. Numpad '.' key testid is 'numpad-key-dot'. Decimal product step for +/- is 0.25. Grosir tier for Bayam Hijau triggers at qty>=5 (price 10.000). All iteration_1 data-testids are preserved.",
+  "rca of the issue": "N/A - no bugs. Refactor validated green."
+}
