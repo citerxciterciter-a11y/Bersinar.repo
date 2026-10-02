@@ -117,6 +117,7 @@ class LocationStockInput(BaseModel):
 
 class ProductInput(BaseModel):
     sku: Optional[str] = None
+    barcode: Optional[str] = ""
     name: str
     category: str
     unit: str = "PCS"
@@ -287,7 +288,7 @@ async def create_product(data: ProductInput, user: dict = Depends(get_current_us
     if await db.products.find_one({"sku": sku}):
         sku = f"SKU-{str(uuid.uuid4())[:8].upper()}"
     pid = new_id()
-    doc = {"id": pid, "sku": sku, "name": data.name, "category": data.category,
+    doc = {"id": pid, "sku": sku, "barcode": data.barcode or "", "name": data.name, "category": data.category,
            "unit": data.unit, "is_decimal_allowed": data.is_decimal_allowed,
            "is_expirable": data.is_expirable, "expired_date": data.expired_date,
            "min_stock_alert": data.min_stock_alert, "image_url": data.image_url,
@@ -304,7 +305,7 @@ async def update_product(product_id: str, data: ProductInput, user: dict = Depen
         raise HTTPException(status_code=404, detail="Produk tidak ditemukan")
     await db.products.update_one({"id": product_id}, {"$set": {
         "name": data.name, "category": data.category, "unit": data.unit,
-        "sku": data.sku or existing["sku"],
+        "sku": data.sku or existing["sku"], "barcode": data.barcode or "",
         "is_decimal_allowed": data.is_decimal_allowed, "is_expirable": data.is_expirable,
         "expired_date": data.expired_date, "min_stock_alert": data.min_stock_alert,
         "image_url": data.image_url}})

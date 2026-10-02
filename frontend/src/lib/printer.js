@@ -13,12 +13,22 @@ const OPT_SERVICES = [
 
 let device = null;
 let characteristic = null;
-let state = { connected: false, name: null, printing: false };
+let state = { connected: false, name: null, printing: false, width: localStorage.getItem("bersinar_printer_width") || "58" };
 const listeners = new Set();
 
 function notify() {
   state = { ...state };
   listeners.forEach((fn) => fn(state));
+}
+
+export function setWidth(w) {
+  state.width = w === "80" ? "80" : "58";
+  localStorage.setItem("bersinar_printer_width", state.width);
+  notify();
+}
+
+function columns() {
+  return state.width === "80" ? 48 : 32;
 }
 
 export function subscribe(fn) {
@@ -62,12 +72,34 @@ export async function connect() {
   characteristic = await findWritable(server);
   state.connected = true;
   state.name = device.name || "Printer";
+  try { localStorage.setItem("bersinar_printer_id", device.id); } catch {}
   notify();
   return state;
 }
 
+// Auto-reconnect to the last paired printer without a device picker (if still granted & in range).
+export async function tryReconnect() {
+  if (!isSupported() || !navigator.bluetooth.getDevices) return false;
+  const lastId = localStorage.getItem("bersinar_printer_id");
+  if (!lastId || state.connected) return false;
+  try {
+    const devices = await navigator.bluetooth.getDevices();
+    const d = devices.find((x) => x.id === lastId);
+    if (!d) return false;
+    device = d;
+    device.addEventListener("gattserverdisconnected", onDisconnect);
+    const server = await d.gatt.connect();
+    characteristic = await findWritable(server);
+    state.connected = true;
+    state.name = d.name || "Printer";
+    notify();
+    return true;
+  } catch { return false; }
+}
+
 export function disconnect() {
   try { device?.gatt?.disconnect(); } catch {}
+  try { localStorage.removeItem("bersinar_printer_id"); } catch {}
   onDisconnect();
 }
 
@@ -83,18 +115,19 @@ async function writeBytes(data) {
   }
 }
 
-/* ESC/POS builder — 58mm = 32 chars per line (Font A) */
-function pad(left, right, width = 32) {
+/* ESC/POS builder — columns depend on paper width (58mm=32, 80mm=48) */
+function pad(left, right, width) {
   left = String(left); right = String(right);
   if (left.length + right.length >= width) left = left.slice(0, Math.max(0, width - right.length - 1));
   return left + " ".repeat(Math.max(1, width - left.length - right.length)) + right;
 }
 
 function buildBytes(txn) {
+  const cols = columns();
   const b = [];
   const enc = new TextEncoder();
   const t = (s) => { for (const c of enc.encode(s)) b.push(c); };
-  const line = "-".repeat(32) + "\n";
+  const line = "-".repeat(cols) + "\n";
 
   b.push(0x1b, 0x40);            // init
   b.push(0x1b, 0x61, 0x01);     // center
@@ -114,17 +147,17 @@ function buildBytes(txn) {
   t(line);
   (txn.items || []).forEach((i) => {
     t(i.product_name + "\n");
-    t(pad(`${fmtQty(i.qty)} ${i.unit} x ${rupiah(i.applied_unit_price)}`, rupiah(i.subtotal)) + "\n");
+    t(pad(`${fmtQty(i.qty)} ${i.unit} x ${rupiah(i.applied_unit_price)}`, rupiah(i.subtotal), cols) + "\n");
   });
   t(line);
-  if (txn.discount > 0) t(pad("Diskon", "-" + rupiah(txn.discount)) + "\n");
+  if (txn.discount > 0) t(pad("Diskon", "-" + rupiah(txn.discount), cols) + "\n");
   b.push(0x1b, 0x45, 0x01);
-  t(pad("TOTAL", rupiah(txn.total_amount)) + "\n");
+  t(pad("TOTAL", rupiah(txn.total_amount), cols) + "\n");
   b.push(0x1b, 0x45, 0x00);
-  t(pad("Metode", txn.payment_method) + "\n");
+  t(pad("Metode", txn.payment_method, cols) + "\n");
   if (txn.payment_method === "Cash") {
-    t(pad("Tunai", rupiah(txn.amount_paid)) + "\n");
-    t(pad("Kembali", rupiah(txn.change)) + "\n");
+    t(pad("Tunai", rupiah(txn.amount_paid), cols) + "\n");
+    t(pad("Kembali", rupiah(txn.change), cols) + "\n");
   }
   if (txn.payment_method === "Credit") {
     b.push(0x1b, 0x61, 0x01);
@@ -147,4 +180,24 @@ export async function print(txn) {
   } finally {
     state.printing = false; notify();
   }
+}
+
+export function testPrint() {
+  const now = new Date().toISOString();
+  return print({
+    invoice_number: "TEST-PRINT",
+    location_name: "Gudang Utama",
+    cashier_name: "Tes",
+    customer_name: "Umum",
+    created_at: now,
+    discount: 0,
+    total_amount: 15000,
+    payment_method: "Cash",
+    amount_paid: 20000,
+    change: 5000,
+    items: [
+      { product_name: "Contoh Bayam Hijau", unit: "Kg", qty: 1, applied_unit_price: 12000, subtotal: 12000 },
+      { product_name: "Contoh Teh Botol", unit: "PCS", qty: 1, applied_unit_price: 3000, subtotal: 3000 },
+    ],
+  });
 }

@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import * as printer from "@/lib/printer";
+import PrinterSettings from "@/components/PrinterSettings";
 import {
   ShoppingCart, Package, Boxes, Trash2, Users, FileText, BarChart3,
   Maximize, Minimize, LogOut, Menu, X, Sprout, MapPin, Printer as PrinterIcon,
@@ -28,6 +29,7 @@ export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
   const [locations, setLocations] = useState(["Gudang Utama", "Cabang 1", "Cabang 2"]);
   const [pstate, setPstate] = useState(printer.getState());
+  const [printerOpen, setPrinterOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,27 +37,11 @@ export default function Layout({ children }) {
     const onFs = () => setIsFull(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFs);
     const unsub = printer.subscribe(setPstate);
+    printer.tryReconnect().then((ok) => { if (ok) toast.success("Printer tersambung kembali"); }).catch(() => {});
     return () => { document.removeEventListener("fullscreenchange", onFs); unsub(); };
   }, []);
 
-  const togglePrinter = async () => {
-    if (!printer.isSupported()) {
-      toast.error("Browser tidak mendukung Bluetooth. Gunakan Google Chrome di tablet.");
-      return;
-    }
-    if (pstate.connected) {
-      printer.disconnect();
-      toast.message("Printer diputus");
-      return;
-    }
-    try {
-      toast.loading("Memilih printer Bluetooth...", { id: "pr" });
-      const s = await printer.connect();
-      toast.success(`Printer "${s.name}" terhubung`, { id: "pr" });
-    } catch (e) {
-      toast.error(e.message || "Gagal menghubungkan printer", { id: "pr" });
-    }
-  };
+  const togglePrinter = () => setPrinterOpen(true);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -153,6 +139,8 @@ export default function Layout({ children }) {
 
         <main className="flex-1 min-w-0 min-h-0 overflow-hidden">{children}</main>
       </div>
+
+      {printerOpen && <PrinterSettings onClose={() => setPrinterOpen(false)} />}
     </div>
   );
 }

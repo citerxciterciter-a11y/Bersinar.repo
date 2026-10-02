@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import api, { apiErr } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { rupiah, categoryColor, fmtQty, thumb } from "@/lib/format";
+import { compressImage, dataUrlKb } from "@/lib/image";
 import { toast } from "sonner";
 import {
   Plus, Search, Pencil, Trash2, X, Loader2, Package, Image as ImageIcon,
+  ScanLine, Upload,
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -130,11 +132,15 @@ function ProductForm({ meta, product, catImg, onClose, onSaved }) {
   const tierNames = meta.tiers || ["Eceran", "Grosir", "Partai"];
   const init = product || {};
   const [form, setForm] = useState({
-    name: init.name || "", sku: init.sku || "", category: init.category || "Sayur",
+    name: init.name || "", sku: init.sku || "", barcode: init.barcode || "", category: init.category || "Sayur",
     unit: init.unit || "Kg", is_decimal_allowed: init.is_decimal_allowed || false,
     is_expirable: init.is_expirable || false, expired_date: init.expired_date || "",
     min_stock_alert: init.min_stock_alert ?? 10, image_url: init.image_url || "",
   });
+  const [imgSize, setImgSize] = useState(500);
+  const [imgBusy, setImgBusy] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const fileRef = useRef(null);
   const [tiers, setTiers] = useState(
     init.tiers?.length ? init.tiers.map((t) => ({ ...t })) : [{ tier_name: "Eceran", min_qty: 1, price: 0 }]
   );
@@ -146,6 +152,35 @@ function ProductForm({ meta, product, catImg, onClose, onSaved }) {
   );
   const [saving, setSaving] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const onPickImage = async (file) => {
+    if (!file) return;
+    setImgBusy(true);
+    try {
+      const dataUrl = await compressImage(file, imgSize, 0.72);
+      set("image_url", dataUrl);
+      toast.success(`Gambar dikompres (~${dataUrlKb(dataUrl)} KB)`);
+    } catch (e) { toast.error(e.message || "Gagal memproses gambar"); }
+    finally { setImgBusy(false); }
+  };
+
+  // Scan-to-form: capture one barcode from a wired scanner into the barcode field
+  useEffect(() => {
+    if (!scanning) return;
+    let buffer = ""; let last = 0;
+    const onKey = (e) => {
+      const now = Date.now(); const gap = now - last; last = now;
+      if (gap > 80) buffer = "";
+      if (e.key === "Enter") {
+        if (buffer.length >= 2) { set("barcode", buffer); toast.success("Barcode terisi: " + buffer); }
+        setScanning(false); e.preventDefault(); return;
+      }
+      if (e.key.length === 1) { if (buffer.length < 64) buffer += e.key; e.preventDefault(); }
+    };
+    window.addEventListener("keydown", onKey, true);
+    const to = setTimeout(() => setScanning(false), 15000);
+    return () => { window.removeEventListener("keydown", onKey, true); clearTimeout(to); };
+  }, [scanning]);
 
   const addTier = () => {
     const next = tierNames[tiers.length] || "Partai";
@@ -203,16 +238,57 @@ function ProductForm({ meta, product, catImg, onClose, onSaved }) {
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">SKU / Barcode (opsional)</label>
+              <label className="text-sm font-medium text-gray-700">SKU (opsional)</label>
               <input data-testid="pf-sku" className={field} value={form.sku} onChange={(e) => set("sku", e.target.value)} placeholder="Auto-generate" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Barcode</label>
+              <div className="flex gap-2">
+                <input data-testid="pf-barcode" className={field} value={form.barcode} onChange={(e) => set("barcode", e.target.value)} placeholder="Scan / ketik barcode" />
+                <button type="button" data-testid="pf-scan-barcode" onClick={() => setScanning(true)}
+                  className={`px-3 rounded-lg border flex items-center gap-1 text-sm font-medium flex-shrink-0 ${scanning ? "bg-amber-500 text-white border-amber-500" : "bg-white border-gray-200 text-emerald-700 hover:bg-emerald-50"}`}>
+                  <ScanLine size={16} /> {scanning ? "Scan..." : "Scan"}
+                </button>
+              </div>
+              {scanning && <p className="text-[11px] text-amber-600 mt-1">Arahkan & tembak barcode dengan scanner sekarang...</p>}
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Batas Minimum Stok</label>
               <input data-testid="pf-minstock" type="number" className={field} value={form.min_stock_alert} onChange={(e) => set("min_stock_alert", e.target.value)} />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium text-gray-700">URL Gambar (opsional)</label>
-              <input data-testid="pf-image" className={field} value={form.image_url} onChange={(e) => set("image_url", e.target.value)} placeholder="Kosongkan untuk gambar default kategori" />
+              <label className="text-sm font-medium text-gray-700">Gambar Produk</label>
+              <div className="flex gap-3 items-start mt-1">
+                <div className="h-24 w-24 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  {form.image_url ? <img src={thumb(form.image_url, 200, 200)} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="text-gray-300" size={28} />}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <input ref={fileRef} type="file" accept="image/*" data-testid="pf-image-file" className="hidden"
+                    onChange={(e) => onPickImage(e.target.files?.[0])} />
+                  <div className="flex gap-2">
+                    <button type="button" data-testid="pf-image-upload" onClick={() => fileRef.current?.click()} disabled={imgBusy}
+                      className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium flex items-center gap-1.5 disabled:opacity-50">
+                      {imgBusy ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />} Unggah Foto
+                    </button>
+                    {form.image_url && (
+                      <button type="button" data-testid="pf-image-remove" onClick={() => set("image_url", "")}
+                        className="px-3 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">Hapus</button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">Ukuran:</span>
+                    <Select value={String(imgSize)} onValueChange={(v) => setImgSize(Number(v))}>
+                      <SelectTrigger data-testid="pf-image-size" className="h-8 w-[160px] text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="300">Kecil (300px) — tercepat</SelectItem>
+                        <SelectItem value="500">Sedang (500px)</SelectItem>
+                        <SelectItem value="800">Besar (800px)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <p className="text-[11px] text-gray-400">Foto otomatis dikompres (JPEG) agar ringan & tidak memperlambat halaman kasir. Kosong = pakai gambar default kategori.</p>
+                </div>
+              </div>
             </div>
           </div>
 
