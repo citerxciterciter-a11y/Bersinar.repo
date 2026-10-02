@@ -57,7 +57,7 @@ export default function Layout({ children }) {
     <div className="h-[100dvh] w-full flex flex-col bg-[#F9F8F6] overflow-hidden">
       {/* Navbar */}
       <header className="flex-shrink-0 h-16 bg-emerald-900 text-white flex items-center px-3 sm:px-5 gap-3 z-30 border-b border-emerald-800">
-        <button data-testid="sidebar-toggle" onClick={() => setOpen(!open)} className="lg:hidden p-2 rounded-lg hover:bg-white/10">
+        <button data-testid="sidebar-toggle" onClick={() => setOpen(!open)} className="p-2 rounded-lg hover:bg-white/10" title="Menu">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
         <div className="flex items-center gap-2">
@@ -109,33 +109,33 @@ export default function Layout({ children }) {
       </header>
 
       <div className="flex-1 flex min-h-0">
-        {/* Sidebar */}
-        <aside className={`${open ? "flex" : "hidden"} lg:flex
-          fixed lg:static z-20 top-16 bottom-0 left-0 w-60 bg-white border-r border-gray-200 flex-col py-4 gap-1 px-3`}>
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} onClick={() => setOpen(false)}
-              data-testid={`nav-${n.label.toLowerCase().replace(/[^a-z]/g, "-")}`}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
-                  isActive ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
-                }`}>
-              <n.icon size={19} />
-              {n.label}
-            </NavLink>
-          ))}
-          {user?.role === "admin" && (
-            <NavLink to="/users" onClick={() => setOpen(false)} data-testid="nav-users"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
-                  isActive ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
-                }`}>
-              <Users size={19} /> Pengguna
-            </NavLink>
-          )}
-          <div className="mt-auto text-[11px] text-gray-400 px-3">v1.0 • Omnichannel POS</div>
-        </aside>
-
-        {open && <div className="fixed inset-0 top-16 bg-black/30 z-10 lg:hidden" onClick={() => setOpen(false)} />}
+        {/* Popup menu (floating) — frees full width for the catalog */}
+        {open && <div className="fixed inset-0 top-16 bg-black/30 z-40" onClick={() => setOpen(false)} data-testid="menu-backdrop" />}
+        {open && (
+          <nav data-testid="menu-popup" className="fixed z-50 top-[4.5rem] left-3 w-64 bg-white rounded-2xl border border-gray-200 shadow-xl py-2 px-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto">
+            {NAV.map((n) => (
+              <NavLink key={n.to} to={n.to} end={n.end} onClick={() => setOpen(false)}
+                data-testid={`nav-${n.label.toLowerCase().replace(/[^a-z]/g, "-")}`}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                    isActive ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+                  }`}>
+                <n.icon size={19} />
+                {n.label}
+              </NavLink>
+            ))}
+            {user?.role === "admin" && (
+              <NavLink to="/users" onClick={() => setOpen(false)} data-testid="nav-users"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                    isActive ? "bg-emerald-600 text-white" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+                  }`}>
+                <Users size={19} /> Pengguna
+              </NavLink>
+            )}
+            <div className="border-t border-gray-100 mt-2 pt-2 text-[11px] text-gray-400 px-3">v1.0 • Omnichannel POS</div>
+          </nav>
+        )}
 
         <main className="flex-1 min-w-0 min-h-0 overflow-hidden">{children}</main>
       </div>

@@ -269,7 +269,7 @@ export default function POS() {
     setNumpad({ open: false, product: null, initial: null });
   }, [addToCart]);
 
-  const gridCols = isFull ? "grid-cols-3 md:grid-cols-5" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
+  const gridCols = isFull ? "grid-cols-3 md:grid-cols-5 xl:grid-cols-6" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
   const stockFor = useCallback((p) => stockAt(p, location), [location]);
 
   /* ---- Barcode scanner (USB HID): rapid keystrokes + Enter -> add to cart ---- */
