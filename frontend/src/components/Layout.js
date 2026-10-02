@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
+import { toast } from "sonner";
+import * as printer from "@/lib/printer";
 import {
   ShoppingCart, Package, Boxes, Trash2, Users, FileText, BarChart3,
-  Maximize, Minimize, LogOut, Menu, X, Sprout, MapPin,
+  Maximize, Minimize, LogOut, Menu, X, Sprout, MapPin, Printer as PrinterIcon,
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -25,14 +27,35 @@ export default function Layout({ children }) {
   const [isFull, setIsFull] = useState(false);
   const [open, setOpen] = useState(false);
   const [locations, setLocations] = useState(["Gudang Utama", "Cabang 1", "Cabang 2"]);
+  const [pstate, setPstate] = useState(printer.getState());
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get("/meta").then((r) => setLocations(r.data.locations)).catch(() => {});
     const onFs = () => setIsFull(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFs);
-    return () => document.removeEventListener("fullscreenchange", onFs);
+    const unsub = printer.subscribe(setPstate);
+    return () => { document.removeEventListener("fullscreenchange", onFs); unsub(); };
   }, []);
+
+  const togglePrinter = async () => {
+    if (!printer.isSupported()) {
+      toast.error("Browser tidak mendukung Bluetooth. Gunakan Google Chrome di tablet.");
+      return;
+    }
+    if (pstate.connected) {
+      printer.disconnect();
+      toast.message("Printer diputus");
+      return;
+    }
+    try {
+      toast.loading("Memilih printer Bluetooth...", { id: "pr" });
+      const s = await printer.connect();
+      toast.success(`Printer "${s.name}" terhubung`, { id: "pr" });
+    } catch (e) {
+      toast.error(e.message || "Gagal menghubungkan printer", { id: "pr" });
+    }
+  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -75,6 +98,13 @@ export default function Layout({ children }) {
               ))}
             </SelectContent>
           </Select>
+
+          <button data-testid="printer-toggle" onClick={togglePrinter}
+            className={`relative p-2 rounded-lg ${pstate.connected ? "bg-emerald-600" : "bg-emerald-800 hover:bg-emerald-700"}`}
+            title={pstate.connected ? `Printer: ${pstate.name} (klik untuk putus)` : "Hubungkan printer Bluetooth 58mm"}>
+            <PrinterIcon size={20} />
+            <span className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-emerald-900 ${pstate.connected ? "bg-lime-400" : "bg-gray-400"}`} />
+          </button>
 
           <button data-testid="fullscreen-toggle" onClick={toggleFullscreen}
             className="p-2 rounded-lg bg-emerald-800 hover:bg-emerald-700" title="Layar Penuh">

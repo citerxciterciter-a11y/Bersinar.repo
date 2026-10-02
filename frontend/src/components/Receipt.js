@@ -1,5 +1,7 @@
-import { X, Printer, MessageCircle } from "lucide-react";
+import { X, Printer, MessageCircle, Bluetooth } from "lucide-react";
 import { rupiah, fmtQty, fmtDate } from "@/lib/format";
+import * as printer from "@/lib/printer";
+import { toast } from "sonner";
 
 export default function Receipt({ txn, customer, onClose }) {
   if (!txn) return null;
@@ -69,15 +71,25 @@ export default function Receipt({ txn, customer, onClose }) {
           </div>
         </div>
 
-        <div className="p-4 border-t border-gray-100 flex gap-2 flex-shrink-0">
-          <button onClick={() => window.print()} data-testid="receipt-print-btn"
-            className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center justify-center gap-2">
-            <Printer size={18} /> Cetak
+        <div className="p-4 border-t border-gray-100 flex flex-col gap-2 flex-shrink-0">
+          <button onClick={async () => {
+              if (!printer.getState().connected) { toast.error("Printer Bluetooth belum terhubung (ikon printer di navbar)"); return; }
+              try { await printer.print(txn); toast.success("Struk tercetak"); }
+              catch (e) { toast.error("Gagal cetak: " + (e.message || "printer")); }
+            }} data-testid="receipt-bt-print-btn"
+            className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold flex items-center justify-center gap-2">
+            <Bluetooth size={18} /> Cetak ke Printer Bluetooth
           </button>
-          <a href={waLink} target="_blank" rel="noreferrer" data-testid="receipt-wa-btn"
-            className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center justify-center gap-2">
-            <MessageCircle size={18} /> WhatsApp
-          </a>
+          <div className="flex gap-2">
+            <button onClick={() => window.print()} data-testid="receipt-print-btn"
+              className="flex-1 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold flex items-center justify-center gap-2">
+              <Printer size={18} /> Cetak Browser
+            </button>
+            <a href={waLink} target="_blank" rel="noreferrer" data-testid="receipt-wa-btn"
+              className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center justify-center gap-2">
+              <MessageCircle size={18} /> WhatsApp
+            </a>
+          </div>
         </div>
       </div>
     </div>

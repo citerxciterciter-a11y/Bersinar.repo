@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { rupiah, fmtQty, categoryColor, thumb } from "@/lib/format";
 import Numpad from "@/components/Numpad";
 import Receipt from "@/components/Receipt";
+import * as printer from "@/lib/printer";
 import { toast } from "sonner";
 import {
   Search, Plus, Minus, Trash2, ShoppingCart, X, Loader2, Wallet,
@@ -271,6 +272,40 @@ export default function POS() {
   const gridCols = isFull ? "grid-cols-3 md:grid-cols-5" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
   const stockFor = useCallback((p) => stockAt(p, location), [location]);
 
+  /* ---- Barcode scanner (USB HID): rapid keystrokes + Enter -> add to cart ---- */
+  const handleScan = useCallback((code) => {
+    const q = code.trim().toLowerCase();
+    if (!q) return;
+    const p = allProducts.find((x) => (x.sku || "").toLowerCase() === q || (x.barcode || "").toLowerCase() === q);
+    if (!p) { toast.error(`Barcode "${code}" tidak ditemukan`); return; }
+    if (stockAt(p, location) <= 0) { toast.error(`Stok ${p.name} habis`); return; }
+    const ex = cartRef.current.find((c) => c.product.id === p.id);
+    addToCart(p, (ex?.qty || 0) + 1);
+    toast.success(`${p.name} masuk keranjang`);
+  }, [allProducts, addToCart, location]);
+
+  useEffect(() => {
+    let buffer = "";
+    let last = 0;
+    const onKey = (e) => {
+      const now = Date.now();
+      const gap = now - last;
+      last = now;
+      if (gap > 80) buffer = "";          // slow gap => manual typing, reset
+      if (e.key === "Enter") {
+        if (buffer.length >= 3) { e.preventDefault(); handleScan(buffer); }
+        buffer = "";
+        return;
+      }
+      if (e.key.length === 1) {
+        buffer += e.key;
+        if (gap < 35) e.preventDefault();  // fast stream => keep scanner chars out of inputs
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [handleScan]);
+
   return (
     <div className="h-full flex overflow-hidden">
       {/* Catalog */}
@@ -346,7 +381,14 @@ export default function POS() {
       {checkout && (
         <CheckoutModal cart={cart} total={cartTotal} location={location}
           onClose={() => setCheckout(false)}
-          onDone={(txn) => { setCheckout(false); setCart([]); setReceipt(txn); loadProducts(); }} />
+          onDone={(r) => {
+            setCheckout(false); setCart([]); setReceipt(r); loadProducts();
+            if (printer.getState().connected) {
+              printer.print(r.txn)
+                .then(() => toast.success("Struk tercetak ke printer"))
+                .catch((e) => toast.error("Gagal cetak: " + (e.message || "printer")));
+            }
+          }} />
       )}
 
       {receipt && <Receipt txn={receipt.txn} customer={receipt.customer} onClose={() => setReceipt(null)} />}
