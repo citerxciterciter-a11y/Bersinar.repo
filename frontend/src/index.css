@@ -1,0 +1,80 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #F9F8F6;
+}
+
+@layer base {
+    :root {
+        --background: 40 20% 97%;
+        --foreground: 162 83% 16%;
+        --card: 0 0% 100%;
+        --card-foreground: 162 83% 16%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 162 83% 16%;
+        --primary: 160 84% 31%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 40 25% 94%;
+        --secondary-foreground: 162 83% 16%;
+        --muted: 40 20% 94%;
+        --muted-foreground: 220 9% 40%;
+        --accent: 82 70% 45%;
+        --accent-foreground: 162 83% 12%;
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 220 13% 91%;
+        --input: 220 13% 91%;
+        --ring: 160 84% 31%;
+        --chart-1: 160 84% 31%;
+        --chart-2: 82 70% 45%;
+        --chart-3: 32 95% 44%;
+        --chart-4: 0 72% 51%;
+        --chart-5: 199 89% 48%;
+        --radius: 0.75rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    h1, h2, h3, h4, .font-heading {
+        font-family: "Cabinet Grotesk", "IBM Plex Sans", sans-serif;
+    }
+    .font-mono {
+        font-family: "IBM Plex Mono", monospace;
+    }
+}
+
+/* Thin green scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media print {
+    body * { visibility: hidden; }
+    #receipt-print, #receipt-print * { visibility: visible; }
+    #receipt-print { position: absolute; left: 0; top: 0; width: 80mm; }
+}
+
+@keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+.animate-slide-up { animation: slide-up 0.25s ease-out; }

@@ -1,0 +1,64 @@
+{
+  "app_name": "BERSINAR",
+  "theme": "Fresh Market — Organic & Earthy (Archetype 1)",
+  "vibe": "Fresh, Grounded, Fast-paced Retail, Trustworthy",
+  "typography": {
+    "headings": "Cabinet Grotesk",
+    "body": "IBM Plex Sans",
+    "mono": "IBM Plex Mono",
+    "guidelines": "Do NOT use Inter, Roboto, or standard SaaS fonts. Use Cabinet Grotesk for prominent POS totals and dashboard titles to give a premium organic market feel. IBM Plex Sans provides ultra-clear legibility for dense lists and tables. IBM Plex Mono is MANDATORY for all numeric inputs (Numpad), prices, and receipt printing layouts. Headings over 32px must use tight tracking (tracking-tight)."
+  },
+  "colors": {
+    "background": "#F9F8F6",
+    "surface": "#FFFFFF",
+    "primary": "#059669",
+    "primary_glow": "#84CC16",
+    "text_dark": "#064E3B",
+    "text_muted": "#4B5563",
+    "danger_waste": "#DC2626",
+    "warning_stock": "#D97706",
+    "border": "#E5E7EB",
+    "guidelines": "Tint neutral greys with warm tones to match the 'Earth/Sand' vibe. DO NOT use generic #000000. Text should be Deep Forest Green (#064E3B). Primary action buttons should use the Emerald (#059669) with hover states revealing the 'Bersinar' (Shining) Lime accent (#84CC16)."
+  },
+  "layouts": {
+    "pos_tablet": "Use a flex/grid layout to achieve a strict 62% (left catalog) / 38% (right cart) split. The left section should contain a CSS Grid for products: `grid-cols-3 md:grid-cols-4`, adapting to `grid-cols-5` when the Fullscreen API is active.",
+    "pos_mobile": "Mobile-first approach: Product grid `grid-cols-2`. Implement a floating bottom bar for the cart summary that triggers a bottom-sheet drawer (`fixed bottom-0 w-full rounded-t-2xl z-50`) for checkout and numpad.",
+    "dashboard_bento": "High-density grid (`gap-4`) for analytics. Summary metrics `col-span-1`. Main charts `col-span-2 row-span-2`. Apply `h-full` to ensure even widget bottoms. No jagged edges.",
+    "fullscreen_mode": "Include a visible 'Fullscreen' toggle button in the navbar utilizing the standard web Fullscreen API. Ensure UI expands elegantly without blowing up component max-widths."
+  },
+  "components": {
+    "product_card": "Solid white surface, 1px border. DO NOT use glassmorphism here. Include visual tier-pricing badges (Eceran/Grosir) and precise stock badges. Image must take up upper 50% with `object-cover`. Use `scale-95` on active/click for tactile POS feedback.",
+    "numpad_modal": "Centered modal for desktop/tablet, bottom sheet for mobile. Keys must be large, tactile (Neumorphic subtle shadow or 1px solid stroke), and utilize IBM Plex Mono. Essential for decimal weights (kg) and quantities.",
+    "waste_form": "Red-tinted destructive surface (`bg-red-50 border-red-200`) to subconsciously warn the user this subtracts from profit (HPP loss). Include fast toggle for Busuk/Layu/Pecah/Kadaluarsa.",
+    "cart_panel": "Dense, list-based layout. Line items need clear +/- toggles or tap-to-edit quantity via the Numpad. Multi-payment row (Cash, QRIS, Bon/Piutang) mapped clearly at the bottom.",
+    "receipt_print": "Must be formatted strictly for 58mm/80mm thermal printers. Rendered entirely in monospace, black-and-white, removing all shadows and rounded corners."
+  },
+  "visual_enhancers": {
+    "shadows": "Soft ambient shadow for the cart panel `shadow-[0_8px_30px_rgb(0,0,0,0.04)]` to separate it from the 62% catalog section.",
+    "borders": "1px crisp borders (`border-gray-200`) for structural elements. Heavy rounded corners (`rounded-2xl`) for main containers, nested `rounded-xl` for internal items.",
+    "motion": "Fast, snappy micro-interactions. POS requires speed. Use 0.15s ease-out transitions for buttons. No sluggish animations."
+  },
+  "image_urls": {
+    "vegetables_category": {
+      "url": "https://images.unsplash.com/photo-1557844352-761f2565b576?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwzfHxmcmVzaCUyMG9yZ2FuaWMlMjB2ZWdldGFibGVzJTIwbWFya2V0fGVufDB8fHx8MTc5MDkyMDIzNnww&ixlib=rb-4.1.0&q=85",
+      "description": "Assorted fresh organic vegetables and fruits (Use as placeholder for Produce/Sayur category)"
+    },
+    "rice_sembako_category": {
+      "url": "https://images.pexels.com/photos/38781904/pexels-photo-38781904.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Raw rice in a sack (Use as placeholder for Sembako/Grains category)"
+    },
+    "meat_category": {
+      "url": "https://images.unsplash.com/photo-1690983330536-3b0089d07cf9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwzfHxmcmVzaCUyMHJhdyUyMGJlZWYlMjBidXRjaGVyfGVufDB8fHx8MTc5MDkyMDIzNnww&ixlib=rb-4.1.0&q=85",
+      "description": "Fresh raw beef steaks (Use as placeholder for Meat/Daging category)"
+    }
+  },
+  "instructions_to_main_agent": [
+    "You are building a SPA POS System. Install necessary icons using `lucide-react` or `phosphor-react`.",
+    "Use Shadcn UI for dropdowns, tabs, dialogs (Numpad, Waste form, Add Product), and forms. Strip Vercel-like styling to match the earthy 'Fresh Market' palette.",
+    "Implement the layout with explicit CSS Grid/Flexbox classes to guarantee the 62%/38% landscape split for tablets.",
+    "Implement the Fullscreen API triggered by a Navbar icon.",
+    "Never use generic placeholder URLs. Use the provided image URLs.",
+    "All interactive and key informational elements MUST include a `data-testid` attribute (e.g., `data-testid='pos-checkout-btn'`, `data-testid='numpad-key-1'`)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": "Avoid generic 'AI slop' UI. Create depth through layered design (background > surface > overlay). Add `transition-transform duration-150 active:scale-95` to all POS action buttons for tactile feel. DO NOT apply `transition: all`. Left-align form labels and dense text. DO NOT center-align the app container. Use Sonner for toasts (e.g., Low stock alerts, Waste logged). Use Lucide React icons. NEVER use Emoji characters for icons. Do NOT use fully transparent backgrounds on dropdowns or overlays."
+}
