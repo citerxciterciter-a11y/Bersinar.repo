@@ -443,7 +443,7 @@ function CheckoutModal({ cart, total, location, onClose, onDone }) {
           <button onClick={onClose} data-testid="checkout-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
         </div>
 
-        <div className="overflow-y-auto overscroll-contain p-4 space-y-4 flex-1">
+        <div className="overflow-y-auto overscroll-contain p-4 space-y-4 flex-1 min-h-0">
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
             <div className="text-sm text-emerald-600">Total Tagihan</div>
             <div data-testid="checkout-grand" className="font-mono font-extrabold text-3xl text-emerald-800">{rupiah(grand)}</div>

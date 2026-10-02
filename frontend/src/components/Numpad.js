@@ -70,7 +70,7 @@ export default function Numpad({ open, product, initial, onClose, onConfirm }) {
         </div>
 
         {/* Keys */}
-        <div className="p-4 grid grid-cols-3 gap-2 flex-1 overflow-y-auto overscroll-contain">
+        <div className="p-4 grid grid-cols-3 gap-2 flex-1 overflow-y-auto overscroll-contain min-h-0">
           {keys.map((k, i) =>
             k === "" ? <div key={i} /> :
             k === "back" ? (

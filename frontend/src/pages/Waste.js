@@ -111,7 +111,7 @@ function WasteForm({ location, onClose, onSaved }) {
           <h3 className="font-heading font-bold text-xl text-red-700">Catat Barang Rusak</h3>
           <button onClick={onClose} data-testid="waste-form-close" className="p-2 rounded-lg hover:bg-red-100"><X size={20} /></button>
         </div>
-        <div className="overflow-y-auto p-4 space-y-4 flex-1">
+        <div className="overflow-y-auto p-4 space-y-4 flex-1 min-h-0">
           <div>
             <label className="text-sm font-medium text-gray-700">Produk</label>
             <Select value={productId} onValueChange={(v) => { setProductId(v); setQty(""); }}>

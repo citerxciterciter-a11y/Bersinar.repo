@@ -217,7 +217,7 @@ function ProductForm({ meta, product, catImg, onClose, onSaved }) {
           <button onClick={onClose} data-testid="product-form-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
         </div>
 
-        <div className="overflow-y-auto p-4 space-y-5 flex-1">
+        <div className="overflow-y-auto p-4 space-y-5 flex-1 min-h-0">
           <div className="grid sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2">
               <label className="text-sm font-medium text-gray-700">Nama Produk *</label>

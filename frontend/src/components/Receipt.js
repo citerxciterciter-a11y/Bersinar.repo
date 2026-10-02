@@ -33,7 +33,7 @@ export default function Receipt({ txn, customer, onClose }) {
           <button onClick={onClose} data-testid="receipt-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
         </div>
 
-        <div className="overflow-y-auto p-5 flex-1">
+        <div className="overflow-y-auto p-5 flex-1 min-h-0">
           <div id="receipt-print" className="font-mono text-[12px] text-black leading-tight">
             <div className="text-center">
               <div className="font-bold text-base">BERSINAR</div>

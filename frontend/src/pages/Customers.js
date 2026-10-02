@@ -104,7 +104,7 @@ function CustomerForm({ customer, onClose, onSaved }) {
           <h3 className="font-heading font-bold text-xl">{customer ? "Edit Pelanggan" : "Tambah Pelanggan"}</h3>
           <button onClick={onClose} data-testid="customer-form-close" className="p-2 rounded-lg hover:bg-gray-100"><X size={20} /></button>
         </div>
-        <div className="overflow-y-auto p-4 space-y-3 flex-1">
+        <div className="overflow-y-auto p-4 space-y-3 flex-1 min-h-0">
           <div><label className="text-sm font-medium text-gray-700">Nama Usaha / Toko *</label><input data-testid="cf-name" className={field} value={form.name} onChange={(e) => set("name", e.target.value)} /></div>
           <div><label className="text-sm font-medium text-gray-700">No. HP / WhatsApp</label><input data-testid="cf-phone" className={field} value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="628xxx" /></div>
           <div><label className="text-sm font-medium text-gray-700">Alamat</label><input data-testid="cf-address" className={field} value={form.address} onChange={(e) => set("address", e.target.value)} /></div>
