@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import api, { apiErr } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { rupiah, fmtQty, categoryColor } from "@/lib/format";
+import { rupiah, fmtQty, categoryColor, thumb } from "@/lib/format";
 import Numpad from "@/components/Numpad";
 import Receipt from "@/components/Receipt";
 import { toast } from "sonner";
@@ -51,7 +51,7 @@ const ProductCard = memo(function ProductCard({ product, stock, onClick }) {
       className="pos-card bg-white rounded-lg border border-gray-200 overflow-hidden text-left hover:border-emerald-400 active:scale-[0.97] flex flex-col">
       <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative pointer-events-none">
         {product.image_url ? (
-          <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" draggable="false" className="w-full h-full object-cover" />
+          <img src={thumb(product.image_url)} alt="" width="240" height="180" loading="lazy" decoding="async" draggable="false" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300"><Package size={28} /></div>
         )}

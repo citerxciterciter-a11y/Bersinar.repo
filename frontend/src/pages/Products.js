@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api, { apiErr } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { rupiah, categoryColor, fmtQty } from "@/lib/format";
+import { rupiah, categoryColor, fmtQty, thumb } from "@/lib/format";
 import { toast } from "sonner";
 import {
   Plus, Search, Pencil, Trash2, X, Loader2, Package, Image as ImageIcon,
@@ -92,7 +92,7 @@ export default function Products() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                          {p.image_url ? <img src={p.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package size={18} /></div>}
+                          {p.image_url ? <img src={thumb(p.image_url, 80, 80)} alt="" width="40" height="40" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package size={18} /></div>}
                         </div>
                         <div>
                           <div className="font-semibold">{p.name}</div>
