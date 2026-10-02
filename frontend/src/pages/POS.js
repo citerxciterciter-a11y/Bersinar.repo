@@ -48,10 +48,10 @@ const ProductCard = memo(function ProductCard({ product, stock, onClick }) {
   const low = stock <= product.min_stock_alert;
   return (
     <button data-testid={`product-${product.id}`} onClick={() => onClick(product)}
-      className="bg-white rounded-lg border border-gray-200 overflow-hidden text-left hover:border-emerald-400 flex flex-col">
-      <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative">
+      className="pos-card bg-white rounded-lg border border-gray-200 overflow-hidden text-left hover:border-emerald-400 active:scale-[0.97] flex flex-col">
+      <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative pointer-events-none">
         {product.image_url ? (
-          <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+          <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" draggable="false" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300"><Package size={28} /></div>
         )}
@@ -60,7 +60,7 @@ const ProductCard = memo(function ProductCard({ product, stock, onClick }) {
           {fmtQty(stock)} {product.unit}
         </span>
       </div>
-      <div className="p-2 flex-1 flex flex-col">
+      <div className="p-2 flex-1 flex flex-col pointer-events-none">
         <div className="text-xs sm:text-sm font-semibold line-clamp-2 leading-tight">{product.name}</div>
         <div className="mt-auto pt-1">
           <div className="font-mono font-bold text-emerald-700 text-sm">{rupiah(product.retail_price)}</div>
@@ -69,7 +69,7 @@ const ProductCard = memo(function ProductCard({ product, stock, onClick }) {
       </div>
     </button>
   );
-});
+}, (prev, next) => prev.product.id === next.product.id && prev.stock === next.stock && prev.onClick === next.onClick);
 
 /* ---------- Memoized Cart Item ---------- */
 const CartItem = memo(function CartItem({ item, onInc, onDec, onRemove, onEditQty }) {
@@ -211,12 +211,15 @@ export default function POS() {
     }
   }, [filtered.length]);
 
-  /* ---- cart mutations (stable) ---- */
+  /* ---- cart mutations (stable, decoupled from grid) ---- */
+  const cartRef = useRef(cart);
+  useEffect(() => { cartRef.current = cart; }, [cart]);
+
   const addToCart = useCallback((product, qty) => {
     const stock = stockAt(product, location);
+    if (qty > stock) { toast.error(`Stok ${product.name} hanya ${fmtQty(stock)} ${product.unit}`); return; }
     setCart((cs) => {
       const i = cs.findIndex((c) => c.product.id === product.id);
-      if (qty > stock) { toast.error(`Stok ${product.name} hanya ${fmtQty(stock)} ${product.unit}`); return cs; }
       if (i >= 0) { const copy = cs.slice(); copy[i] = { ...copy[i], qty }; return copy; }
       return [...cs, { product, qty }];
     });
@@ -224,23 +227,13 @@ export default function POS() {
 
   const onProductClick = useCallback((product) => {
     if (stockAt(product, location) <= 0) { toast.error("Stok habis di cabang ini"); return; }
+    const ex = cartRef.current.find((c) => c.product.id === product.id);
     if (product.is_decimal_allowed) {
-      setCart((cs) => {
-        const ex = cs.find((c) => c.product.id === product.id);
-        setNumpad({ open: true, product, initial: ex?.qty || null });
-        return cs;
-      });
+      setNumpad({ open: true, product, initial: ex?.qty || null });
     } else {
-      setCart((cs) => {
-        const i = cs.findIndex((c) => c.product.id === product.id);
-        const stock = stockAt(product, location);
-        const newQty = (i >= 0 ? cs[i].qty : 0) + 1;
-        if (newQty > stock) { toast.error(`Stok ${product.name} hanya ${fmtQty(stock)} ${product.unit}`); return cs; }
-        if (i >= 0) { const copy = cs.slice(); copy[i] = { ...copy[i], qty: newQty }; return copy; }
-        return [...cs, { product, qty: newQty }];
-      });
+      addToCart(product, (ex?.qty || 0) + 1);
     }
-  }, [location]);
+  }, [location, addToCart]);
 
   const incItem = useCallback((id) => {
     setCart((cs) => cs.map((c) => {
@@ -267,9 +260,12 @@ export default function POS() {
   const cartCount = cart.length;
 
   const closeNumpad = useCallback(() => setNumpad({ open: false, product: null, initial: null }), []);
+  const numpadRef = useRef(numpad);
+  useEffect(() => { numpadRef.current = numpad; }, [numpad]);
   const confirmNumpad = useCallback((qty) => {
-    setNumpad((np) => { if (np.product) addToCart(np.product, qty); return { open: false, product: null, initial: null }; });
-    toast.success("Ditambahkan ke keranjang");
+    const p = numpadRef.current.product;
+    if (p) addToCart(p, qty);
+    setNumpad({ open: false, product: null, initial: null });
   }, [addToCart]);
 
   const gridCols = isFull ? "grid-cols-3 md:grid-cols-5" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4";

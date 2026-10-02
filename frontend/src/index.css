@@ -72,6 +72,18 @@ html, #root {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Instant touch response: kill 300ms tap delay + tap highlight */
+button, a, [role="button"], input, label {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+.pos-card {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 @media print {
     body * { visibility: hidden; }
     #receipt-print, #receipt-print * { visibility: visible; }
