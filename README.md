@@ -1,0 +1,2 @@
+# Bersinar.repo
+Oke aja
